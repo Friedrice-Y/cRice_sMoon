@@ -42,10 +42,12 @@
 <script setup>
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { ElNotification } from 'element-plus'
+import { ElNotification } from 'element-plus';
+import { useCookies } from '@vueuse/integrations/useCookies';
 import { login } from "~/api/manager";
 
 const router = useRouter();
+
 
 const form = reactive({
     username: '',
@@ -74,6 +76,9 @@ const onSubmit = () => {
                 type: 'success',
                 duration: 3000
             });
+            const cookie = useCookies();
+            cookie.set('admin-token', res.data.data.token);
+
             router.replace('/');
 
         }).catch((err) => {

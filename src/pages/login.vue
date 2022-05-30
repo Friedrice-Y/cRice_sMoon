@@ -33,7 +33,8 @@
                     </el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button class="w-[250px]" round color="#626aef" type="primary" @click="onSubmit">登录</el-button>
+                    <el-button class="w-[250px]" round color="#626aef" type="primary" @click="onSubmit"
+                        :loading="loading">登录</el-button>
                 </el-form-item>
             </el-form>
         </el-col>
@@ -44,7 +45,7 @@ import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElNotification } from 'element-plus';
 import { useCookies } from '@vueuse/integrations/useCookies';
-import { login } from "~/api/manager";
+import { login, getInfo } from "~/api/manager";
 
 const router = useRouter();
 
@@ -64,29 +65,31 @@ const rules = {
         { min: 3, max: 5, message: '用户长度必须是3-5个字符', trigger: 'blur' }
     ]
 }
-const formRef = ref(null)
+const formRef = ref(null);
+const loading = ref(false)
 const onSubmit = () => {
     formRef.value.validate((valid) => {
         if (!valid) {
             return false
-        }
+        };
+        loading.value = true;
         login({ username: form.username, password: form.password }).then((res) => {
             ElNotification({
                 message: "登录成功",
                 type: 'success',
                 duration: 3000
             });
+
             const cookie = useCookies();
-            cookie.set('admin-token', res.data.data.token);
+            cookie.set('admin-token', res.token);
 
-            router.replace('/');
-
-        }).catch((err) => {
-            ElNotification({
-                message: err.response.data.msg || "请求失败",
-                type: 'error',
-                duration: 3000
+            // 获取用户相关信息
+            getInfo().then((res) => {
+                console.log(res);
             })
+            router.replace('/');
+        }).finally(() => {
+            loading.value = false;
         })
     })
 }

@@ -43,9 +43,9 @@
 <script setup>
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { ElNotification } from 'element-plus';
-import { useCookies } from '@vueuse/integrations/useCookies';
+import { setToken } from "~/composables/auth"
 import { login, getInfo } from "~/api/manager";
+import { toast } from "~/composables/utils";
 
 const router = useRouter();
 
@@ -74,14 +74,10 @@ const onSubmit = () => {
         };
         loading.value = true;
         login({ username: form.username, password: form.password }).then((res) => {
-            ElNotification({
-                message: "登录成功",
-                type: 'success',
-                duration: 3000
-            });
+            toast("登录成功")
 
-            const cookie = useCookies();
-            cookie.set('admin-token', res.token);
+            // 设置token
+            setToken(res.token);
 
             // 获取用户相关信息
             getInfo().then((res) => {

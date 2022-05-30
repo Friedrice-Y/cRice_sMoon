@@ -1,6 +1,7 @@
 import axios from "axios";
 import { ElNotification } from "element-plus";
-import { useCookies } from "@vueuse/integrations/useCookies";
+import { toast } from "~/composables/utils";
+import { getToken } from "./composables/auth";
 
 const service = axios.create({
   baseURL: "/api",
@@ -9,8 +10,7 @@ const service = axios.create({
 // 添加请求拦截器
 service.interceptors.request.use(
   (config) => {
-    const cookie = useCookies();
-    const token = cookie.get("admin-token");
+    const token = getToken();
     if (token) {
       config.headers["token"] = token;
     }
@@ -23,6 +23,7 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response) => response.data.data,
   (error) => {
+    toast(error.response.data.msg || "请求失败", "error");
     ElNotification({
       message: error.response.data.msg || "请求失败",
       type: "error",

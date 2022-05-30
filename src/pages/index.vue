@@ -1,7 +1,9 @@
 <template>
   <div>后台首页</div>
+  {{ $store.state.user }}
 </template>
 <script setup>
-import { useCookies } from '@vueuse/integrations/useCookies';
-const cookie = useCookies();
+
+
+
 </script>

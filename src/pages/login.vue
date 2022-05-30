@@ -46,8 +46,13 @@ import { useRouter } from 'vue-router';
 import { setToken } from "~/composables/auth"
 import { login, getInfo } from "~/api/manager";
 import { toast } from "~/composables/utils";
+import { useStore } from 'vuex';
+
+const store = useStore();
 
 const router = useRouter();
+
+
 
 
 const form = reactive({
@@ -81,7 +86,7 @@ const onSubmit = () => {
 
             // 获取用户相关信息
             getInfo().then((res) => {
-                console.log(res);
+                store.commit('SET_USERINFO', res);
             })
             router.replace('/');
         }).finally(() => {

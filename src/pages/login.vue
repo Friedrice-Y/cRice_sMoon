@@ -12,8 +12,8 @@
                 <span>账号密码登录</span>
                 <span class="line"></span>
             </div>
-            <el-form :model="form">
-                <el-form-item>
+            <el-form ref="formRef" :rules="rules" :model="form">
+                <el-form-item prop="username">
                     <el-input v-model="form.username" placeholder="请输入用户名">
                         <template #prefix>
                             <el-icon class="el-input__icon">
@@ -23,8 +23,8 @@
                     </el-input>
 
                 </el-form-item>
-                <el-form-item>
-                    <el-input v-model="form.password" placeholder="请输入密码">
+                <el-form-item prop="password">
+                    <el-input type="password" v-model="form.password" placeholder="请输入密码" show-password>
                         <template #prefix>
                             <el-icon class="el-input__icon">
                                 <lock />
@@ -40,14 +40,50 @@
     </el-row>
 </template>
 <script setup>
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElNotification } from 'element-plus'
+import { login } from "~/api/manager";
+
+const router = useRouter();
+
 const form = reactive({
     username: '',
     password: ''
 })
 
+const rules = {
+    username: [
+        { required: true, message: '用户名不能为空', trigger: 'blur' },
+        { min: 3, max: 5, message: '用户长度必须是3-5个字符', trigger: 'blur' }
+    ],
+    password: [
+        { required: true, message: '用户名不能为空', trigger: 'blur' },
+        { min: 3, max: 5, message: '用户长度必须是3-5个字符', trigger: 'blur' }
+    ]
+}
+const formRef = ref(null)
 const onSubmit = () => {
-    console.log('submit!')
+    formRef.value.validate((valid) => {
+        if (!valid) {
+            return false
+        }
+        login({ username: form.username, password: form.password }).then((res) => {
+            ElNotification({
+                message: "登录成功",
+                type: 'success',
+                duration: 3000
+            });
+            router.replace('/');
+
+        }).catch((err) => {
+            ElNotification({
+                message: err.response.data.msg || "请求失败",
+                type: 'error',
+                duration: 3000
+            })
+        })
+    })
 }
 </script>
 <style scoped>

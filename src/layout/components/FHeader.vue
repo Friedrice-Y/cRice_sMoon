@@ -9,14 +9,21 @@
         <el-icon class="icon-btn">
             <Fold />
         </el-icon>
-        <el-icon class="icon-btn">
-            <Refresh />
-        </el-icon>
-        <div class="ml-auto flex items-center">
-            <el-icon class="icon-btn">
-                <FullScreen />
+        <el-tooltip effect="dark" content="刷新" placement="bottom">
+            <el-icon class="icon-btn" @click="handleRefresh">
+                <Refresh />
             </el-icon>
-            <el-dropdown class="dropdown">
+        </el-tooltip>
+
+        <div class="ml-auto flex items-center">
+
+            <el-tooltip effect="dark" :content="!isFullscreen ? '全屏' : '退出全屏'" placement="bottom">
+                <el-icon class="icon-btn" @click="toggle">
+                    <FullScreen v-if="!isFullscreen" />
+                    <Aim v-else />
+                </el-icon>
+            </el-tooltip>
+            <el-dropdown class="dropdown" @command="handleCommand">
                 <span class="flex items-center text-light-50">
                     <el-avatar class="mr-2" :size="25" :src="$store.state.user.avatar" />
                     {{ $store.state.user.username }}
@@ -26,8 +33,8 @@
                 </span>
                 <template #dropdown>
                     <el-dropdown-menu>
-                        <el-dropdown-item>修改密码</el-dropdown-item>
-                        <el-dropdown-item>退出登录</el-dropdown-item>
+                        <el-dropdown-item command="rePassword">修改密码</el-dropdown-item>
+                        <el-dropdown-item command="logout">退出登录</el-dropdown-item>
                     </el-dropdown-menu>
                 </template>
             </el-dropdown>
@@ -35,7 +42,40 @@
     </div>
 </template>
 <script setup>
+import { showModal, toast } from "~/composables/utils";
+import { logOut } from '~/api/manager';
+import { useRouter } from 'vue-router';
+import { useStore } from "vuex";
+import { useFullscreen } from '@vueuse/core'
+const { isFullscreen, toggle } = useFullscreen()
 
+const router = useRouter();
+const store = useStore();
+
+function handleCommand(c) {
+    switch (c) {
+        case "logout":
+            handleLogout();
+            break;
+        case "rePassword":
+            console.log("修改密码");
+            break;
+        default:
+            break;
+    }
+}
+
+const handleRefresh = () => location.reload();
+function handleLogout() {
+    showModal('是否要确认退出登录？').then((res) => {
+        logOut().finally(() => {
+            store.dispatch('logOut');
+
+            router.replace('/login')
+            toast('退出登录成功')
+        });
+    });
+};
 </script>
 <style>
 .f-header {
@@ -58,7 +98,8 @@
 .icon-btn:hover {
     @apply bg-indigo-600;
 }
-.f-header .dropdown{
+
+.f-header .dropdown {
     height: 64px;
     cursor: pointer;
     @apply flex justify-center items-center mx-5;

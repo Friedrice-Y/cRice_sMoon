@@ -41,10 +41,8 @@
     </el-row>
 </template>
 <script setup>
-import { reactive, ref } from 'vue';
+import { reactive, ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
-import { setToken } from "~/composables/auth"
-import { login, getInfo } from "~/api/manager";
 import { toast } from "~/composables/utils";
 import { useStore } from 'vuex';
 
@@ -78,22 +76,27 @@ const onSubmit = () => {
             return false
         };
         loading.value = true;
-        login({ username: form.username, password: form.password }).then((res) => {
-            toast("登录成功")
-
-            // 设置token
-            setToken(res.token);
-
-            // 获取用户相关信息
-            getInfo().then((res) => {
-                store.commit('SET_USERINFO', res);
-            })
+        store.dispatch("login", form).then(res => {
+            toast('登录成功')
             router.replace('/');
         }).finally(() => {
             loading.value = false;
-        })
+        });
     })
 }
+
+function onKeyUp(e) {
+    if (e.key == "Enter") onSubmit()
+}
+// 添加键盘监听事件
+onMounted(() => {
+    document.addEventListener("keyup", onKeyUp)
+});
+onBeforeUnmount(() => {
+    document.removeEventListener("keyup", onKeyUp)
+});
+
+
 </script>
 <style scoped>
 .login-container {

@@ -2,6 +2,7 @@ import axios from "axios";
 import { ElNotification } from "element-plus";
 import { toast } from "~/composables/utils";
 import { getToken } from "./composables/auth";
+import store from "./store";
 
 const service = axios.create({
   baseURL: "/api",
@@ -23,7 +24,12 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response) => response.data.data,
   (error) => {
-    toast(error.response.data.msg || "请求失败", "error");
+    const msg = error.response.data.msg || "请求失败";
+    if (msg == "非法token，请先登录！") {
+      store.dispatch("logOut").finally(() => location.reload());
+    }
+
+    toast(msg, "error");
     ElNotification({
       message: error.response.data.msg || "请求失败",
       type: "error",

@@ -7,3 +7,6 @@ export function login(data) {
 export function getInfo() {
   return axios.post("/admin/getinfo");
 }
+export function logOut() {
+  return axios.post("/admin/logout");
+}

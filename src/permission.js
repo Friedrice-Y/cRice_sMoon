@@ -22,7 +22,7 @@ router.beforeEach(async (to, from, next) => {
 
   //   如果用户登录了,自动获取用户信息，并存储在 vuex 当中
   if (token) {
-    await store.dispatch("getInfo");
+    await store.dispatch("getinfo");
   }
 
   // 设置页面标题

@@ -2,27 +2,27 @@
     <div class="f-header">
         <span class="logo">
             <el-icon class="mr-1">
-                <Fries />
+                <eleme-filled />
             </el-icon>
-            炒饭编程
+            帝莎编程
         </span>
         <el-icon class="icon-btn">
-            <Fold />
+            <fold />
         </el-icon>
         <el-tooltip effect="dark" content="刷新" placement="bottom">
             <el-icon class="icon-btn" @click="handleRefresh">
-                <Refresh />
+                <refresh />
             </el-icon>
         </el-tooltip>
 
         <div class="ml-auto flex items-center">
-
-            <el-tooltip effect="dark" :content="!isFullscreen ? '全屏' : '退出全屏'" placement="bottom">
+            <el-tooltip effect="dark" content="全屏" placement="bottom">
                 <el-icon class="icon-btn" @click="toggle">
-                    <FullScreen v-if="!isFullscreen" />
-                    <Aim v-else />
+                    <full-screen v-if="!isFullscreen" />
+                    <aim v-else />
                 </el-icon>
             </el-tooltip>
+
             <el-dropdown class="dropdown" @command="handleCommand">
                 <span class="flex items-center text-light-50">
                     <el-avatar class="mr-2" :size="25" :src="$store.state.user.avatar" />
@@ -42,40 +42,50 @@
     </div>
 </template>
 <script setup>
-import { showModal, toast } from "~/composables/utils";
-import { logOut } from '~/api/manager';
-import { useRouter } from 'vue-router';
-import { useStore } from "vuex";
+import { logOut } from "~/api/manager"
+import { showModal, toast } from "~/composables/utils"
+import { useRouter } from "vue-router"
+import { useStore } from "vuex"
 import { useFullscreen } from '@vueuse/core'
-const { isFullscreen, toggle } = useFullscreen()
+const {
+    // 是否全屏状态
+    isFullscreen,
+    // 切换全屏
+    toggle
+} = useFullscreen()
 
-const router = useRouter();
-const store = useStore();
+const router = useRouter()
+const store = useStore()
 
-function handleCommand(c) {
+
+const handleCommand = (c) => {
     switch (c) {
         case "logout":
-            handleLogout();
+            handleLogout()
             break;
         case "rePassword":
             console.log("修改密码");
             break;
-        default:
-            break;
     }
 }
 
-const handleRefresh = () => location.reload();
-function handleLogout() {
-    showModal('是否要确认退出登录？').then((res) => {
-        logOut().finally(() => {
-            store.dispatch('logOut');
+// 刷新
+const handleRefresh = () => location.reload()
 
-            router.replace('/login')
-            toast('退出登录成功')
-        });
-    });
-};
+
+function handleLogout() {
+    showModal("是否要退出登录？").then(res => {
+        logOut()
+            .finally(() => {
+
+                store.dispatch("logOut")
+                // 跳转回登录页
+                router.push("/login")
+                // 提示退出登录成功
+                toast("退出登录成功")
+            })
+    })
+}
 </script>
 <style>
 .f-header {
@@ -103,6 +113,5 @@ function handleLogout() {
     height: 64px;
     cursor: pointer;
     @apply flex justify-center items-center mx-5;
-
 }
 </style>

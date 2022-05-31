@@ -9,23 +9,26 @@ const store = createStore({
     };
   },
   mutations: {
-    // 设置用户信息
+    // 记录用户信息
     SET_USERINFO(state, user) {
       state.user = user;
     },
   },
   actions: {
-    login({ commit }, data) {
+    // 登录
+    login({ commit }, { username, password }) {
       return new Promise((resolve, reject) => {
-        login(data)
+        login({ username, password })
           .then((res) => {
             setToken(res.token);
+
             resolve(res);
           })
           .catch((err) => reject(err));
       });
     },
-    getInfo({ commit }) {
+    // 获取当前登录用户信息
+    getinfo({ commit }) {
       return new Promise((resolve, reject) => {
         getInfo()
           .then((res) => {
@@ -35,9 +38,12 @@ const store = createStore({
           .catch((err) => reject(err));
       });
     },
+    // 退出登录
     logOut({ commit }) {
+      // 移除cookie里的token
       removeToken();
-      commit("SET_USERINFO");
+      // 清除当前用户状态 vuex
+      commit("SET_USERINFO", {});
     },
   },
 });

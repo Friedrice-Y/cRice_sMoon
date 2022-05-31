@@ -1,12 +1,13 @@
 import router from "~/router";
 import { getToken } from "~/composables/auth";
-import { toast } from "~/composables/utils";
+import { toast, showFullLoading, hideFullLoading } from "~/composables/utils";
 import store from "./store";
 
 // 全局前置守卫
 router.beforeEach(async (to, from, next) => {
-  const token = getToken();
+  showFullLoading();
 
+  const token = getToken();
   //   没有登录 强制跳转到登录页
   if (!token && to.path != "/login") {
     toast("请先登录", "error");
@@ -25,3 +26,5 @@ router.beforeEach(async (to, from, next) => {
   }
   next();
 });
+
+router.afterEach((to, from) => hideFullLoading());

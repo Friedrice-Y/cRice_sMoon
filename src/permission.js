@@ -24,6 +24,11 @@ router.beforeEach(async (to, from, next) => {
   if (token) {
     await store.dispatch("getInfo");
   }
+
+  // 设置页面标题
+  let title = (to.meta.title ? to.meta.title : "") + "-炒饭编程商城后台";
+  document.title = title;
+
   next();
 });
 

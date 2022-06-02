@@ -40,7 +40,7 @@
             </el-dropdown>
         </div>
     </div>
-    <form-drawer ref="formDrawerRef" title="修改密码" destoryOnClose @submit="onSubmit">
+    <form-drawer ref="formDrawerRef" title="修改密码" destroyOnClose @submit="onSubmit">
         <slot>
             <el-form ref="formRef" :rules="rules" :model="form" label-width="80px" size="small">
                 <el-form-item prop="oldpassword" label="旧密码">
@@ -60,15 +60,10 @@
     </form-drawer>
 </template>
 <script setup>
-import { ref, reactive } from "vue";
-
 import FormDrawer from "~/components/FormDrawer.vue";
-
-import { logOut, updatePassword } from "~/api/manager";
-import { showModal, toast } from "~/composables/utils";
-import { useRouter } from "vue-router";
-import { useStore } from "vuex";
 import { useFullscreen } from "@vueuse/core";
+import { useRepassword, useLogout } from "~/composables/useManager";
+
 const {
     // 是否全屏状态
     isFullscreen,
@@ -76,49 +71,18 @@ const {
     toggle,
 } = useFullscreen();
 
-const formDrawerRef = ref(null);
-const router = useRouter();
-const store = useStore();
+const {
+    formDrawerRef,
+    form,
+    rules,
+    formRef,
+    onSubmit,
+    openRePasswordFrom
+} = useRepassword();
 
-const form = reactive({
-    oldpassword: "",
-    password: "",
-    repassword: ""
-});
-
-const rules = {
-    oldpassword: [
-        { required: true, message: "旧密码必填", trigger: "blur" },
-
-    ],
-    password: [
-        { required: true, message: "新密码必填", trigger: "blur" },
-
-    ],
-    repassword: [
-        { required: true, message: "确认密码必填", trigger: "blur" },
-
-    ],
-};
-const formRef = ref(null);
-
-const onSubmit = () => {
-    formRef.value.validate((valid) => {
-        if (!valid) {
-            return false;
-        }
-        formDrawerRef.value.showLoading();
-        updatePassword(form)
-            .then(res => {
-                toast('修改密码成功,请重新登录');
-                store.dispatch("logOut");
-                router.replace("/login");
-            })
-            .finally(() => {
-                formDrawerRef.value.hideLoading();
-            })
-    });
-};
+const {
+    handleLogout
+} = useLogout();
 
 const handleCommand = (c) => {
     switch (c) {
@@ -126,24 +90,12 @@ const handleCommand = (c) => {
             handleLogout();
             break;
         case "rePassword":
-            formDrawerRef.value.open();
+            openRePasswordFrom();
             break;
     }
 };
 // 刷新
 const handleRefresh = () => location.reload();
-
-function handleLogout() {
-    showModal("是否要退出登录？").then((res) => {
-        logOut().finally(() => {
-            store.dispatch("logOut");
-            // 跳转回登录页
-            router.replace("/login");
-            // 提示退出登录成功
-            toast("退出登录成功");
-        });
-    });
-}
 </script>
 <style>
 .f-header {

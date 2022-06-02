@@ -1,6 +1,6 @@
 <template>
     <el-drawer v-model="showDrawer" :title="title" :size="size" :close-on-click-modal="false"
-        :destory-on-close="destroyOnClose">
+        :destroy-on-close="destroyOnClose">
         <div class="formDrawer">
             <div class="body">
                 <slot></slot>

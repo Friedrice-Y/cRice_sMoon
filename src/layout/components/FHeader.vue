@@ -40,30 +40,22 @@
             </el-dropdown>
         </div>
     </div>
-    <!-- <el-drawer v-model="showDrawer" title="修改密码" size="45%" :close-on-click-modal="false">
-        <el-form ref="formRef" :rules="rules" :model="form" label-width="80px" size="small">
-            <el-form-item prop="oldpassword" label="旧密码">
-                <el-input v-model="form.oldpassword" type="password" placeholder="请输入旧密码">
-                </el-input>
-            </el-form-item>
-            <el-form-item prop="password" label="新密码">
-                <el-input type="password" v-model="form.password" placeholder="请输入新密码密码" show-password>
-                </el-input>
-            </el-form-item>
-            <el-form-item prop="repassword" label="确认密码">
-                <el-input type="password" v-model="form.repassword" placeholder="请输入确认密码" show-password>
-                </el-input>
-            </el-form-item>
-            <el-form-item>
-                <el-button type="primary" @click="onSubmit" :loading="loading">
-                    提交</el-button>
-            </el-form-item>
-        </el-form>
-    </el-drawer> -->
-    <form-drawer ref="formDrawerRef">
+    <form-drawer ref="formDrawerRef" title="修改密码" destoryOnClose @submit="onSubmit">
         <slot>
-            123
-            <div class="bg-rose-400"></div>
+            <el-form ref="formRef" :rules="rules" :model="form" label-width="80px" size="small">
+                <el-form-item prop="oldpassword" label="旧密码">
+                    <el-input v-model="form.oldpassword" type="password" placeholder="请输入旧密码">
+                    </el-input>
+                </el-form-item>
+                <el-form-item prop="password" label="新密码">
+                    <el-input type="password" v-model="form.password" placeholder="请输入新密码密码" show-password>
+                    </el-input>
+                </el-form-item>
+                <el-form-item prop="repassword" label="确认密码">
+                    <el-input type="password" v-model="form.repassword" placeholder="请输入确认密码" show-password>
+                    </el-input>
+                </el-form-item>
+            </el-form>
         </slot>
     </form-drawer>
 </template>
@@ -85,8 +77,6 @@ const {
 } = useFullscreen();
 
 const formDrawerRef = ref(null);
-const showDrawer = ref(false);
-
 const router = useRouter();
 const store = useStore();
 
@@ -111,25 +101,21 @@ const rules = {
     ],
 };
 const formRef = ref(null);
-const loading = ref(false);
+
 const onSubmit = () => {
     formRef.value.validate((valid) => {
         if (!valid) {
             return false;
         }
-        loading.value = true;
+        formDrawerRef.value.showLoading();
         updatePassword(form)
             .then(res => {
                 toast('修改密码成功,请重新登录');
-
                 store.dispatch("logOut");
-
                 router.replace("/login");
-
-
             })
             .finally(() => {
-                loading.value = false
+                formDrawerRef.value.hideLoading();
             })
     });
 };

@@ -1,6 +1,6 @@
 <template>
   <div class="f-menu" :style="{ width: $store.state.asideWidth }">
-    <el-menu :unique-opened="true" :collapse-transition="false" :collapse="isCollapse" default-active="2" class="border-0" @select="handleSelect">
+    <el-menu :default-active="defaultActive" :unique-opened="true" :collapse-transition="false" :collapse="isCollapse" default-active="2" class="border-0" @select="handleSelect">
       <template v-for="(item, index) in asideMenus" :key="index">
         <el-sub-menu v-if="item.child && item.child.length > 0" :index="item.name">
           <template #title>
@@ -30,14 +30,18 @@
   </div>
 </template>
 <script setup>
-import { useRouter } from 'vue-router';
-import { computed } from 'vue';
+import { useRouter,useRoute} from 'vue-router';
+import { computed,ref} from 'vue';
 import { useStore } from 'vuex';
 const router = useRouter();
 const store = useStore();
+const route = useRoute();
+// 默认选中
+const defaultActive = ref(route.path);
+
+const isCollapse = computed(()=> !(store.state.asideWidth == "250px"));
 
 
-const isCollapse = computed(()=> !(store.state.asideWidth == "250px"))
 
 const asideMenus = [{
   "name": "后台面板",

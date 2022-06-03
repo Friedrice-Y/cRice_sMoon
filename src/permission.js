@@ -3,6 +3,8 @@ import { getToken } from "~/composables/auth";
 import { toast, showFullLoading, hideFullLoading } from "~/composables/utils";
 import store from "./store";
 
+let hasGetInfo = false;
+
 // 全局前置守卫
 router.beforeEach(async (to, from, next) => {
   showFullLoading();
@@ -22,8 +24,9 @@ router.beforeEach(async (to, from, next) => {
   let hasNewRoutes = false;
 
   //   如果用户登录了,自动获取用户信息，并存储在 vuex 当中
-  if (token) {
+  if (token && !hasGetInfo) {
     let { menus } = await store.dispatch("getinfo");
+    hasGetInfo = true;
     // 动态添加路由
     hasNewRoutes = addRoutes(menus);
   }

@@ -1,4 +1,4 @@
-import router from "~/router";
+import { router, addRoutes } from "~/router";
 import { getToken } from "~/composables/auth";
 import { toast, showFullLoading, hideFullLoading } from "~/composables/utils";
 import store from "./store";
@@ -19,17 +19,20 @@ router.beforeEach(async (to, from, next) => {
     toast("请勿重复登录", "error");
     return next({ path: from.path } ? from.path : "/");
   }
+  let hasNewRoutes = false;
 
   //   如果用户登录了,自动获取用户信息，并存储在 vuex 当中
   if (token) {
-    await store.dispatch("getinfo");
+    let { menus } = await store.dispatch("getinfo");
+    // 动态添加路由
+    hasNewRoutes = addRoutes(menus);
   }
 
   // 设置页面标题
   let title = (to.meta.title ? to.meta.title : "") + "-炒饭编程商城后台";
   document.title = title;
 
-  next();
+  hasNewRoutes ? next(to.fullPath) : next();
 });
 
 router.afterEach((to, from) => hideFullLoading());

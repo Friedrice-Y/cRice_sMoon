@@ -4,7 +4,7 @@
             <el-icon class="mr-1">
                 <eleme-filled />
             </el-icon>
-            炒饭后台
+            后台管理
         </span>
         <el-icon class="icon-btn" @click="$store.commit('handleAsideWidth')">
             <fold v-if="$store.state.asideWidth == '250px'"/>

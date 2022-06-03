@@ -1,6 +1,7 @@
 <template>
     <div class="f-tag-list" :style="{ left: $store.state.asideWidth }">
-        <el-tabs v-model="activeTab" type="card" style="min-width:100px" class="demo-tabs" @tab-remove="removeTab">
+        <el-tabs v-model="activeTab" type="card" style="min-width:100px" class="demo-tabs" @tab-remove="removeTab"
+            @tab-change="changeTab">
             <el-tab-pane v-for="item in tabList" :key="item.path" :label="item.title" :closable="item.path != '/'"
                 :name="item.path">
             </el-tab-pane>
@@ -24,23 +25,50 @@
             </el-dropdown>
         </span>
     </div>
+    <div style="height:44px"></div>
 </template>
 <script setup>
 import { ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter, onBeforeRouteUpdate } from 'vue-router';
+import { useCookies } from "@vueuse/integrations/useCookies";
+const router = useRouter();
 const route = useRoute();
-
+const cookie = useCookies();
 const activeTab = ref(route.path)
 const tabList = ref([
     {
         title: '后台首页',
         path: '/'
     },
-    {
-        title: '商城管理',
-        path: '/goods/list'
-    },
 ])
+// 添加标签导航
+function addTab(tab) {
+    let noTab = tabList.value.findIndex(t => t.path == tab.path) == -1;
+    if (noTab) {
+        tabList.value.push(tab);
+    }
+    cookie.set("tabList", tabList.value);
+}
+function initTabList(){
+    let tbs = cookie.get('tabList');
+    if(tbs){
+        tabList.value = tbs;
+    }
+}
+initTabList();
+onBeforeRouteUpdate((to, from) => {
+    activeTab.value = to.path;
+    addTab({
+        title: to.meta.title,
+        path: to.path
+    })
+})
+
+const changeTab = (t) => {
+    activeTab.value = t;
+    router.push(t)
+}
+
 const removeTab = () => {
 
 }
@@ -60,6 +88,7 @@ const removeTab = () => {
 }
 
 :deep(.el-tabs__header) {
+    border: 0 !important;
     @apply mb-0;
 }
 

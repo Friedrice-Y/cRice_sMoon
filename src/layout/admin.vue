@@ -9,7 +9,11 @@
             </el-aside>
             <el-main>
                 <f-tag-list></f-tag-list>
-                <router-view></router-view>
+                <router-view v-slot="{ Component }">
+                    <keep-alive :max="10">
+                        <component :is="Component"></component>
+                    </keep-alive>
+                </router-view>
             </el-main>
         </el-container>
     </el-container>
@@ -20,7 +24,7 @@ import FMenu from './components/FMenu.vue';
 import FTagList from './components/FTagList.vue';
 </script>
 <style>
-.el-aside{
+.el-aside {
     transition: all 0.2s;
 }
 </style>

@@ -46,13 +46,21 @@
 
             </el-col>
         </el-row>
-        <IndexNavs></IndexNavs>
+        <IndexNavs />
+        <el-row :gutter="20">
+            <el-col :span="12" :offset="0">
+                <IndexChart />
+            </el-col>
+            <el-col :span="12" :offset="0"></el-col>
+        </el-row>
+
 
     </div>
 </template>
 <script setup>
 import CountTo from '~/components/CountTo.vue';
 import IndexNavs from '~/components/IndexNavs.vue';
+import IndexChart from '~/components/IndexChart.vue';
 import { ref } from 'vue';
 import { getStatistics1 } from '~/api/index.js';
 const panels = ref([]);

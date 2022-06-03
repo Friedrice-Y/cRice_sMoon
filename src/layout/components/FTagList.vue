@@ -49,9 +49,9 @@ function addTab(tab) {
     }
     cookie.set("tabList", tabList.value);
 }
-function initTabList(){
+function initTabList() {
     let tbs = cookie.get('tabList');
-    if(tbs){
+    if (tbs) {
         tabList.value = tbs;
     }
 }
@@ -69,7 +69,22 @@ const changeTab = (t) => {
     router.push(t)
 }
 
-const removeTab = () => {
+const removeTab = (t) => {
+    let tabs = tabList.value;
+    let a = activeTab.value;
+    if (a == t) {
+        tabs.forEach((tab, index) => {
+            if (tab.path == t) {
+                let nextTab = tabs[index + 1] || tabs[index - 1];
+                if (nextTab) {
+                    a = nextTab.path
+                }
+            }
+        })
+    }
+    activeTab.value = a;
+    tabList.value = tabList.value.filter((tab) => tab.path != t);
+    cookie.set("tabList", tabList.value)
 
 }
 </script>

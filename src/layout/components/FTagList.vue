@@ -7,7 +7,7 @@
             </el-tab-pane>
         </el-tabs>
         <span class="tag-btn">
-            <el-dropdown>
+            <el-dropdown @command="handleClose">
                 <span class="el-dropdown-link">
                     <el-icon>
                         <arrow-down />
@@ -15,11 +15,8 @@
                 </span>
                 <template #dropdown>
                     <el-dropdown-menu>
-                        <el-dropdown-item>Action 1</el-dropdown-item>
-                        <el-dropdown-item>Action 2</el-dropdown-item>
-                        <el-dropdown-item>Action 3</el-dropdown-item>
-                        <el-dropdown-item disabled>Action 4</el-dropdown-item>
-                        <el-dropdown-item divided>Action 5</el-dropdown-item>
+                        <el-dropdown-item command="clearOther">关闭其他</el-dropdown-item>
+                        <el-dropdown-item command="clearAll">全部关闭</el-dropdown-item>
                     </el-dropdown-menu>
                 </template>
             </el-dropdown>
@@ -28,65 +25,16 @@
     <div style="height:44px"></div>
 </template>
 <script setup>
-import { ref } from 'vue';
-import { useRoute, useRouter, onBeforeRouteUpdate } from 'vue-router';
-import { useCookies } from "@vueuse/integrations/useCookies";
-const router = useRouter();
-const route = useRoute();
-const cookie = useCookies();
-const activeTab = ref(route.path)
-const tabList = ref([
-    {
-        title: '后台首页',
-        path: '/'
-    },
-])
-// 添加标签导航
-function addTab(tab) {
-    let noTab = tabList.value.findIndex(t => t.path == tab.path) == -1;
-    if (noTab) {
-        tabList.value.push(tab);
-    }
-    cookie.set("tabList", tabList.value);
-}
-function initTabList() {
-    let tbs = cookie.get('tabList');
-    if (tbs) {
-        tabList.value = tbs;
-    }
-}
-initTabList();
-onBeforeRouteUpdate((to, from) => {
-    activeTab.value = to.path;
-    addTab({
-        title: to.meta.title,
-        path: to.path
-    })
-})
-
-const changeTab = (t) => {
-    activeTab.value = t;
-    router.push(t)
-}
-
-const removeTab = (t) => {
-    let tabs = tabList.value;
-    let a = activeTab.value;
-    if (a == t) {
-        tabs.forEach((tab, index) => {
-            if (tab.path == t) {
-                let nextTab = tabs[index + 1] || tabs[index - 1];
-                if (nextTab) {
-                    a = nextTab.path
-                }
-            }
-        })
-    }
-    activeTab.value = a;
-    tabList.value = tabList.value.filter((tab) => tab.path != t);
-    cookie.set("tabList", tabList.value)
-
-}
+import {
+    useTabList
+} from "~/composables/useTabList";
+const {
+    activeTab,
+    tabList,
+    changeTab,
+    removeTab,
+    handleClose,
+} = useTabList()
 </script>
 <style scoped>
 .f-tag-list {

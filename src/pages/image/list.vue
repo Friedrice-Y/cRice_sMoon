@@ -3,26 +3,14 @@
     <el-container class="bg-white rounded" :style="{ height: h + 'px' }">
         <el-header class="image-header">Header</el-header>
         <el-container>
-            <el-aside width="220px" class="image-aside">
-                <div class="top">
-                    <div v-for="i in 100" :key="i"> {{ i }}</div>
-                </div>
-                <div class="bottom">
-                    分页区域
-                </div>
-            </el-aside>
-            <el-main class="image-main">
-                <div class="top">
-                    <div v-for="i in 100" :key="i"> {{ i }}</div>
-                </div>
-                <div class="bottom">
-                    分页区域
-                </div>
-            </el-main>
+            <ImageAside />
+            <ImageMain />
         </el-container>
     </el-container>
 </template>
 <script setup>
+import ImageAside from '~/components/ImageAside.vue';
+import ImageMain from '~/components/ImageMain.vue';
 const windowHeight = window.innerHeight || document.body.clientHeight;
 const h = windowHeight - 64 - 44 - 40;
 

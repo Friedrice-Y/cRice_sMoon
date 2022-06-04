@@ -25,4 +25,8 @@ import "./permission";
 
 import "nprogress/nprogress.css";
 
+import permission from "~/directives/permission.js";
+
+app.use(permission);
+
 app.mount("#app");

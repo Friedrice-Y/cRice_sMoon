@@ -6,7 +6,8 @@
             </AsideList>
         </div>
         <div class="bottom">
-            分页区域
+            <el-pagination background layout="prev, next" :total="total" :current-page="currentPage" :page-size="limit"
+                @current-change="getDate" />
         </div>
     </el-aside>
 </template>
@@ -21,9 +22,19 @@ const loading = ref(false);
 const list = ref([]);
 const activeId = ref(0);
 
-function getDate() {
+// 分页
+const currentPage = ref(1);
+const total = ref(0);
+const limit = ref(10);
+
+
+function getDate(p = null) {
+    if (typeof p === "number") {
+        currentPage.value = p;
+    }
     loading.value = true
-    getImageClassList(1).then((res) => {
+    getImageClassList(currentPage.value).then((res) => {
+        total.value = res.totalCount;
         list.value = res.list;
         let item = list.value[0];
         if (item) {

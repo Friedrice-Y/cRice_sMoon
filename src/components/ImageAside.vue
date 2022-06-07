@@ -1,7 +1,8 @@
 <template>
     <el-aside width="220px" class="image-aside" v-loading="loading">
         <div class="top">
-            <AsideList v-for="(item, index) in list" :key="index" :active="item.id == activeId">
+            <AsideList v-for="(item, index) in list" :key="index" :active="item.id == activeId"
+                @edit="handleEdit(item)">
                 {{ item.name }}
             </AsideList>
         </div>
@@ -10,7 +11,7 @@
                 @current-change="getDate" />
         </div>
     </el-aside>
-    <FormDrawer title="新增" ref="formDrawerRef" @submit="handleSubmit">
+    <FormDrawer :title="drawerTitle" ref="formDrawerRef" @submit="handleSubmit">
         <el-form :model="form" ref="formRef" :rules="rules" label-width="80px" :inline="false">
             <el-form-item label="分类名称" prop="name">
                 <el-input v-model="form.name"></el-input>
@@ -25,9 +26,8 @@
 <script setup>
 import AsideList from './AsideList.vue';
 import FormDrawer from './FormDrawer.vue';
-import { getImageClassList } from '~/api/image_class';
-import { createImageClass } from '../api/image_class';
-import { reactive, ref } from 'vue';
+import { getImageClassList, createImageClass, updateImageClass } from '~/api/image_class';
+import { reactive, ref, computed } from 'vue';
 import { toast } from '~/composables/utils'
 
 // 加载动画
@@ -40,6 +40,10 @@ const activeId = ref(0);
 const currentPage = ref(1);
 const total = ref(0);
 const limit = ref(10);
+
+const editId = ref(0);
+
+const drawerTitle = computed(() => editId.value ? "修改" : "新增")
 
 
 function getDate(p = null) {
@@ -62,7 +66,6 @@ getDate();
 
 const formDrawerRef = ref(null);
 
-const handleCreate = () => formDrawerRef.value.open();
 const form = reactive({
     name: "",
     order: 50
@@ -78,17 +81,29 @@ const handleSubmit = () => {
     formRef.value.validate((valid) => {
         if (!valid) return
         formDrawerRef.value.showLoading();
-        createImageClass(form).then(res => {
-            toast("新增成功");
-            getDate();
+        const fun = editId.value ? updateImageClass(editId.value, form) : createImageClass(form);
+        fun.then(res => {
+            toast(drawerTitle.value + "成功");
+            getDate(editId.value ? currentPage.value : 1);
             formDrawerRef.value.close();
         }).finally(() => {
             formDrawerRef.value.hideLoading();
         })
     })
 }
+const handleCreate = () => {
+    editId.value = 0;
+    form.name = "";
+    form.order = 50;
+    formDrawerRef.value.open();
+}
 
-
+const handleEdit = (row) => {
+    editId.value = row.id;
+    form.name = row.name;
+    form.order = row.order;
+    formDrawerRef.value.open();
+}
 
 defineExpose({
     handleCreate

@@ -22,6 +22,14 @@ export function showModal(content = "提示内容", type = "warning", title = ""
     type,
   });
 }
+// 弹出输入框
+export function showPrompt(tip, value = "") {
+  return ElMessageBox.prompt(tip, "", {
+    confirmButtonText: "确认",
+    cancelButtonText: "取消",
+    inputValue: value,
+  });
+}
 
 // 显示全屏loading
 

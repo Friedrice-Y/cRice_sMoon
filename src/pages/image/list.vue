@@ -5,8 +5,8 @@
             <el-button type="primary" size="small" @click="handleOpenCreate">新增图片分类</el-button>
         </el-header>
         <el-container>
-            <ImageAside ref="imageAsideRef"/>
-            <ImageMain />
+            <ImageAside ref="imageAsideRef" @change="handleAsideChange" />
+            <ImageMain ref="ImageMainRef" />
         </el-container>
     </el-container>
 </template>
@@ -18,7 +18,12 @@ const windowHeight = window.innerHeight || document.body.clientHeight;
 const h = windowHeight - 64 - 44 - 40;
 
 const imageAsideRef = ref(null);
-const handleOpenCreate = ()=> imageAsideRef.value.handleCreate();
+const handleOpenCreate = () => imageAsideRef.value.handleCreate();
+
+const ImageMainRef = ref(null);
+
+
+const handleAsideChange = (imageClassId) => ImageMainRef.value.loadDate(imageClassId);
 
 </script>
 <style>

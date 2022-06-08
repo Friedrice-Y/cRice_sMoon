@@ -28,11 +28,15 @@
                 :page-size="limit" @current-change="getDate" />
         </div>
     </el-main>
+    <el-drawer v-model="drawer" title="上传图片">
+        <UploadFile :data="{ imageClassId }" @success="handleUploadSuccess" />
+    </el-drawer>
 </template>
 <script setup>
 import { ref } from 'vue';
 import { getImageList, updateImage, deleteImage } from '~/api/image';
-import { showPrompt, toast } from '~/composables/utils'
+import { showPrompt, toast } from '~/composables/utils';
+import UploadFile from './UploadFile.vue';
 // 分页
 const currentPage = ref(1);
 const total = ref(0);
@@ -40,6 +44,13 @@ const limit = ref(10);
 const list = ref([]);
 const loading = ref(false);
 const imageClassId = ref(0);
+
+// 上传图片
+const drawer = ref(false);
+
+const openUploadFile = () => {
+    drawer.value = true
+};
 
 
 function getDate(p = null) {
@@ -83,8 +94,11 @@ const handleDelete = (id) => {
         loading.value = false;
     })
 }
+
+const handleUploadSuccess = () => getDate(1);
 defineExpose({
-    loadDate
+    loadDate,
+    openUploadFile
 })
 
 </script>

@@ -78,7 +78,7 @@ const rules = {
 const formRef = ref(null)
 
 const handleSubmit = () => {
-    formRef.value.validate((valid) => {
+    formRef.value.validata((valid) => {
         if (!valid) return
         formDrawerRef.value.showLoading();
         const fun = editId.value ? updateImageClass(editId.value, form) : createImageClass(form);

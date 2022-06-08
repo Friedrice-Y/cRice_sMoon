@@ -3,7 +3,7 @@
         <div class="flex items-center mb-4 justify-between">
             <el-button type="primary" size="small">新增</el-button>
             <el-tooltip effect="dark" content="刷新数据" placement="top-start">
-                <el-button text>
+                <el-button text @click="getData">
                     <el-icon :size="20">
                         <Refresh />
                     </el-icon>
@@ -11,7 +11,7 @@
             </el-tooltip>
 
         </div>
-        <el-table :data="tableData" stripe style="width: 100%">
+        <el-table :data="tableData" stripe style="width: 100%" v-loading="loading">
             <el-table-column prop="title" label="公告标题" width="180" />
             <el-table-column prop="create_time" label="发布时间" width="380" />
             <el-table-column label="操作" width="180" align="center">
@@ -26,29 +26,43 @@
                 </template>
             </el-table-column>
         </el-table>
+        <div class="flex items-center justify-center mt-5">
+            <el-pagination background layout="prev,pager,next" :total="total" :current-page="currentPage" :page-size="limit"
+                @current-change="getData" />
+        </div>
     </el-card>
 </template>
 <script setup>
 import { ref } from 'vue';
+import { getNoticeList } from "~/api/notice"
+
+// 加载动画
+const loading = ref(false);
+
+// 分页
+const currentPage = ref(1);
+const total = ref(0);
+const limit = ref(10);
 
 const tableData = ref([]);
 
 
-function getData() {
-    tableData.value = [{
-        "id": 13,
-        "title": "nip",
-        "content": "nip\n",
-        "order": 0,
-        "create_time": "2022-06-06 14:40:11",
-        "update_time": "2022-06-06 14:40:11"
-
-    },]
+function getData(p = null) {
+    if (typeof p === "number") {
+        currentPage.value = p;
+    }
+    loading.value = true
+    getNoticeList(currentPage.value).then((res) => {
+        tableData.value = res.list;
+        total.value = res.totalCount;
+    }).finally(() => {
+        loading.value = false
+    })
 }
 
 getData();
 // 删除
-const handleClick = (id)=>{
+const handleClick = (id) => {
 
 }
 

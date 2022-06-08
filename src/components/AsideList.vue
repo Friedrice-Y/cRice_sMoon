@@ -8,15 +8,17 @@
                 <Edit :size="12" />
             </el-icon>
         </el-button>
-        <el-popconfirm title="是否要删除该分类?" confirmButtonText="提交" cancelButtonText="取消" @confirm="$emit('delete')">
-            <template #reference>
-                <el-button text class="px-1" type="primary" size="small">
-                    <el-icon>
-                        <Close :size="12" />
-                    </el-icon>
-                </el-button>
-            </template>
-        </el-popconfirm>
+        <span @click="() => { }">
+            <el-popconfirm title="是否要删除该分类?" confirmButtonText="提交" cancelButtonText="取消" @confirm="$emit('delete')">
+                <template #reference>
+                    <el-button text class="px-1" type="primary" size="small">
+                        <el-icon>
+                            <Close :size="12" />
+                        </el-icon>
+                    </el-button>
+                </template>
+            </el-popconfirm>
+        </span>
     </div>
 </template>
 <script setup>

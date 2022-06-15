@@ -1,5 +1,6 @@
 import axios from "~/axios";
 
+// 后台首页1-3
 export function getStatistics1() {
   return axios.get("/admin/statistics1");
 }

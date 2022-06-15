@@ -59,29 +59,37 @@
             :modelValue="row.status"
             :active-value="1"
             :inactive-value="0"
+            @change="handleStatusChange($event, row)"
+            :loading="row.statusLoading"
+            :disabled="row.super == 1"
           >
           </el-switch>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center">
         <template #default="scope">
-          <el-button
-            type="primary"
-            size="small"
-            text
-            @click="handleEdit(scope.row)"
-            >修改</el-button
+          <small v-if="scope.row.super == 1" class="text-sm text-gray-500"
+            >暂无操作</small
           >
-          <el-popconfirm
-            title="是否删除该管理员？"
-            confirmButtonText="提交"
-            cancelButtonText="取消"
-            @confirm="handleClick(scope.row.id)"
-          >
-            <template #reference>
-              <el-button text type="primary" size="small">删除</el-button>
-            </template>
-          </el-popconfirm>
+          <div v-else>
+            <el-button
+              type="primary"
+              size="small"
+              text
+              @click="handleEdit(scope.row)"
+              >修改</el-button
+            >
+            <el-popconfirm
+              title="是否删除该管理员？"
+              confirmButtonText="提交"
+              cancelButtonText="取消"
+              @confirm="handleClick(scope.row.id)"
+            >
+              <template #reference>
+                <el-button text type="primary" size="small">删除</el-button>
+              </template>
+            </el-popconfirm>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -129,7 +137,7 @@ import {
 import FormDrawer from "~/components/FormDrawer.vue";
 import { toast } from "~/composables/utils";
 
-import { getManagerList } from "~/api/manager";
+import { getManagerList, updateManagerStatus } from "~/api/manager";
 
 // 加载动画
 const loading = ref(false);
@@ -159,7 +167,10 @@ function getData(p = null) {
   loading.value = true;
   getManagerList(currentPage.value, searchform)
     .then((res) => {
-      tableData.value = res.list;
+      tableData.value = res.list.map((o) => {
+        o.statusLoading = false;
+        return o;
+      });
       total.value = res.totalCount;
     })
     .finally(() => {
@@ -234,10 +245,23 @@ const handleCreate = () => {
   resetFrom({ title: "", content: "" });
   formDrawerRef.value.open();
 };
-// 修改
+// 编辑
 const handleEdit = (row) => {
   editId.value = row.id;
   resetFrom(row);
   formDrawerRef.value.open();
+};
+
+// 修改状态
+const handleStatusChange = (status, row) => {
+  row.statusLoading = true;
+  updateManagerStatus(row.id, status)
+    .then((res) => {
+      toast("修改状态成功");
+      row.status = status;
+    })
+    .finally(() => {
+      row.statusLoading = false;
+    });
 };
 </script>

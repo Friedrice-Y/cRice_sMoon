@@ -1,5 +1,24 @@
 <template>
   <el-card shadow="never" class="boder-0">
+    <el-form :model="searchform" label-width="80px" class="mb-3" size="small">
+      <el-row :gutter="20">
+        <el-col :span="8" :offset="0">
+          <el-form-item label="关键词">
+            <el-input
+              v-model="searchform.keyword"
+              placeholder="管理员昵称"
+              clearable
+            ></el-input> </el-form-item
+        ></el-col>
+        <el-col :span="8" :offset="8">
+          <div class="flex items-center justify-end">
+            <el-button type="primary" @click="getData">搜索</el-button>
+            <el-button @click="resetSearchForm">重置</el-button>
+          </div>
+        </el-col>
+      </el-row>
+    </el-form>
+
     <div class="flex items-center mb-4 justify-between">
       <el-button type="primary" size="small" @click="handleCreate"
         >新增</el-button
@@ -119,6 +138,18 @@ const loading = ref(false);
 const currentPage = ref(1);
 const total = ref(0);
 const limit = ref(10);
+
+const searchform = reactive({
+  keyword: "",
+});
+
+// 重置管理员搜索表单
+const resetSearchForm = () => {
+  searchform.keyword = "";
+  // 重新获取数据,刷新页面表单
+  getData();
+};
+
 const tableData = ref([]);
 
 function getData(p = null) {
@@ -126,7 +157,7 @@ function getData(p = null) {
     currentPage.value = p;
   }
   loading.value = true;
-  getManagerList(currentPage.value)
+  getManagerList(currentPage.value, searchform)
     .then((res) => {
       tableData.value = res.list;
       total.value = res.totalCount;

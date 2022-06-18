@@ -109,20 +109,10 @@
           <el-input v-model="form.username" placeholder="用户名"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input
-            v-model="form.password"
-            placeholder="密码"
-            type="textarea"
-            :rows="5"
-          ></el-input>
+          <el-input v-model="form.password" placeholder="用户密码"></el-input>
         </el-form-item>
         <el-form-item label="头像" prop="avatar">
-          <el-input
-            v-model="form.avatar"
-            placeholder="公告内容"
-            type="textarea"
-            :rows="5"
-          ></el-input>
+          <ChooseImage v-model="form.avatar" />
         </el-form-item>
         <el-form-item label="所属角色" prop="role_id">
           <el-select v-model="form.role_id" placeholder="选择所属角色">
@@ -151,6 +141,7 @@
 import { reactive, ref, computed } from "vue";
 import FormDrawer from "~/components/FormDrawer.vue";
 import { toast } from "~/composables/utils";
+import ChooseImage from "~/components/ChooseImage.vue";
 
 import {
   getManagerList,

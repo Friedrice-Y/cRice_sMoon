@@ -44,3 +44,14 @@ export function getManagerList(
 export function updateManagerStatus(id, status) {
   return axios.post(`/admin/manager/${id}/update_status`, { status });
 }
+// 新增管理员
+export function createManager(data) {
+  return axios.post("/admin/manager", data);
+}
+// 更新管理员
+export function updateManager(id, data) {
+  return axios.post(`/admin/manager/${id}`, data);
+} // 删除管理员
+export function deleteManager(id) {
+  return axios.post(`/admin/manager/${id}/delete`);
+}

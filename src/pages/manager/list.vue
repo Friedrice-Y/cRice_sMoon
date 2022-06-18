@@ -42,7 +42,7 @@
             </el-avatar>
             <div class="ml-3">
               <h6>{{ row.username }}</h6>
-              <small>ID:{{ row.id }}}</small>
+              <small>ID:{{ row.id }}</small>
             </div>
           </div>
         </template>
@@ -83,7 +83,7 @@
               title="是否删除该管理员？"
               confirmButtonText="提交"
               cancelButtonText="取消"
-              @confirm="handleClick(scope.row.id)"
+              @confirm="handleDelete(scope.row.id)"
             >
               <template #reference>
                 <el-button text type="primary" size="small">删除</el-button>
@@ -104,23 +104,44 @@
       />
     </div>
     <FormDrawer ref="formDrawerRef" title="新增" @submit="handleSubmit">
-      <el-form
-        :model="form"
-        ref="formRef"
-        :rules="rules"
-        label-width="80px"
-        :inline="false"
-      >
-        <el-form-item label="公告标题" prop="title">
-          <el-input v-model="form.title" placeholder="公告标题"></el-input>
+      <el-form :model="form" ref="formRef" label-width="80px" :inline="false">
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="form.username" placeholder="用户名"></el-input>
         </el-form-item>
-        <el-form-item label="公告内容" prop="content">
+        <el-form-item label="密码" prop="password">
           <el-input
-            v-model="form.content"
+            v-model="form.password"
+            placeholder="密码"
+            type="textarea"
+            :rows="5"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="头像" prop="avatar">
+          <el-input
+            v-model="form.avatar"
             placeholder="公告内容"
             type="textarea"
             :rows="5"
           ></el-input>
+        </el-form-item>
+        <el-form-item label="所属角色" prop="role_id">
+          <el-select v-model="form.role_id" placeholder="选择所属角色">
+            <el-option
+              v-for="item in roles"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="状态" prop="content">
+          <el-switch
+            v-model="form.status"
+            :active-value="1"
+            :inactive-value="0"
+          >
+          </el-switch>
         </el-form-item>
       </el-form>
     </FormDrawer>
@@ -128,16 +149,16 @@
 </template>
 <script setup>
 import { reactive, ref, computed } from "vue";
-import {
-  getNoticeList,
-  createNotice,
-  deleteNotice,
-  updateNotice,
-} from "~/api/notice";
 import FormDrawer from "~/components/FormDrawer.vue";
 import { toast } from "~/composables/utils";
 
-import { getManagerList, updateManagerStatus } from "~/api/manager";
+import {
+  getManagerList,
+  updateManagerStatus,
+  createManager,
+  updateManager,
+  deleteManager,
+} from "~/api/manager";
 
 // 加载动画
 const loading = ref(false);
@@ -158,6 +179,8 @@ const resetSearchForm = () => {
   getData();
 };
 
+const roles = ref([]);
+
 const tableData = ref([]);
 
 function getData(p = null) {
@@ -172,6 +195,7 @@ function getData(p = null) {
         return o;
       });
       total.value = res.totalCount;
+      roles.value = res.roles;
     })
     .finally(() => {
       loading.value = false;
@@ -180,9 +204,9 @@ function getData(p = null) {
 
 getData();
 // 删除
-const handleClick = (id) => {
+const handleDelete = (id) => {
   loading.value = true;
-  deleteNotice(id)
+  deleteManager(id)
     .then((res) => {
       toast("删除成功");
       getData(1);
@@ -196,15 +220,12 @@ const handleClick = (id) => {
 const formDrawerRef = ref(null);
 const formRef = ref(null);
 const form = reactive({
-  title: "",
-  content: "",
+  username: "",
+  password: "",
+  row_id: null,
+  status: 1,
+  avatar: "",
 });
-
-const rules = {
-  title: [{ required: true, message: "公告标题不能为空", trigger: "blur" }],
-  content: [{ required: true, message: "公告内容不能为空", trigger: "blur" }],
-};
-
 const editId = ref(0);
 const drawerTitle = computed(() => (editId.value ? "修改" : "新增"));
 
@@ -214,8 +235,8 @@ const handleSubmit = () => {
     formDrawerRef.value.showLoading();
 
     const fun = editId.value
-      ? updateNotice(editId.value, form)
-      : createNotice(form);
+      ? updateManager(editId.value, form)
+      : createManager(form);
 
     fun
       .then((res) => {
@@ -242,7 +263,13 @@ const resetFrom = (row = false) => {
 // 新增
 const handleCreate = () => {
   editId.value = 0;
-  resetFrom({ title: "", content: "" });
+  resetFrom({
+    username: "",
+    password: "",
+    role_id: null,
+    status: 1,
+    avatar: "",
+  });
   formDrawerRef.value.open();
 };
 // 编辑

@@ -1,11 +1,11 @@
 <template>
   <el-card shadow="never" class="boder-0">
-    <el-form :model="searchform" label-width="80px" class="mb-3" size="small">
+    <el-form :model="searchForm" label-width="80px" class="mb-3" size="small">
       <el-row :gutter="20">
         <el-col :span="8" :offset="0">
           <el-form-item label="关键词">
             <el-input
-              v-model="searchform.keyword"
+              v-model="searchForm.keyword"
               placeholder="管理员昵称"
               clearable
             ></el-input> </el-form-item
@@ -142,7 +142,6 @@ import { reactive, ref, computed } from "vue";
 import FormDrawer from "~/components/FormDrawer.vue";
 import { toast } from "~/composables/utils";
 import ChooseImage from "~/components/ChooseImage.vue";
-
 import {
   getManagerList,
   updateManagerStatus,
@@ -151,49 +150,34 @@ import {
   deleteManager,
 } from "~/api/manager";
 
-// 加载动画
-const loading = ref(false);
-
-// 分页
-const currentPage = ref(1);
-const total = ref(0);
-const limit = ref(10);
-
-const searchform = reactive({
-  keyword: "",
-});
-
-// 重置管理员搜索表单
-const resetSearchForm = () => {
-  searchform.keyword = "";
-  // 重新获取数据,刷新页面表单
-  getData();
-};
+import { useInitTable } from "~/composables/useCommon.js";
 
 const roles = ref([]);
 
-const tableData = ref([]);
-
-function getData(p = null) {
-  if (typeof p === "number") {
-    currentPage.value = p;
-  }
-  loading.value = true;
-  getManagerList(currentPage.value, searchform)
-    .then((res) => {
-      tableData.value = res.list.map((o) => {
-        o.statusLoading = false;
-        return o;
-      });
-      total.value = res.totalCount;
-      roles.value = res.roles;
-    })
-    .finally(() => {
-      loading.value = false;
+const {
+  searchForm,
+  resetSearchForm,
+  tableData,
+  loading,
+  currentPage,
+  total,
+  limit,
+  getData,
+} = useInitTable({
+  searchForm: {
+    keyword: "",
+  },
+  getList: getManagerList,
+  onGetListSuccess: (res) => {
+    tableData.value = res.list.map((o) => {
+      o.statusLoading = false;
+      return o;
     });
-}
+    total.value = res.totalCount;
+    roles.value = res.roles;
+  },
+});
 
-getData();
 // 删除
 const handleDelete = (id) => {
   loading.value = true;

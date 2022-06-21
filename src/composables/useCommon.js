@@ -1,7 +1,8 @@
 // 公告代码抽离封装
-// 组合式 API 特性封装 - 列表分页搜索
-
-import { reactive, ref } from "vue";
+// 组合式 API 特性封装
+import { reactive, ref, computed } from "vue";
+import { toast } from "~/composables/utils";
+// - 列表 分页 搜索
 export function useInitTable(opt = {}) {
   let searchForm = null;
   let resetSearchForm = null;
@@ -57,5 +58,72 @@ export function useInitTable(opt = {}) {
     total,
     limit,
     getData,
+  };
+}
+// - 新增 修改
+export function useInitForm(opt = {}) {
+  // 表单部分
+  const formDrawerRef = ref(null);
+  const formRef = ref(null);
+  const defaultForm = opt.form;
+  const form = reactive({});
+
+  const rules = opt.rules || {};
+  const editId = ref(0);
+  const drawerTitle = computed(() => (editId.value ? "修改" : "新增"));
+
+  const handleSubmit = () => {
+    formRef.value.validate((valid) => {
+      if (!valid) return;
+      formDrawerRef.value.showLoading();
+
+      const fun = editId.value
+        ? opt.update(editId.value, form)
+        : opt.create(form);
+
+      fun
+        .then((res) => {
+          toast(drawerTitle.value + "成功");
+          // 修改刷新当前页,新增刷新第一页
+          opt.getData(editId.value ? false : 1);
+          formDrawerRef.value.close();
+        })
+        .finally(() => {
+          formDrawerRef.value.hideLoading();
+        });
+    });
+  };
+  // 重置表单
+  const resetFrom = (row = false) => {
+    if (formRef.value) formRef.value.clearValidate();
+    for (const key in defaultForm) {
+      form[key] = row[key];
+    }
+  };
+
+  // 新增
+  const handleCreate = () => {
+    editId.value = 0;
+    resetFrom(defaultForm);
+    formDrawerRef.value.open();
+  };
+  // 编辑
+  const handleEdit = (row) => {
+    editId.value = row.id;
+    resetFrom(row);
+    formDrawerRef.value.open();
+  };
+
+  return {
+    formDrawerRef,
+    formRef,
+    form,
+    rules,
+    editId,
+    drawerTitle,
+    handleSubmit,
+    resetFrom,
+    handleCreate,
+    handleEdit,
   };
 }

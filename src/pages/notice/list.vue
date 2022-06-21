@@ -80,7 +80,7 @@ import {
 } from "~/api/notice";
 import FormDrawer from "~/components/FormDrawer.vue";
 
-import { useInitTable } from "~/composables/useCommon.js";
+import { useInitTable, useInitForm } from "~/composables/useCommon.js";
 
 const { tableData, loading, currentPage, total, limit, getData } = useInitTable(
   {
@@ -90,6 +90,28 @@ const { tableData, loading, currentPage, total, limit, getData } = useInitTable(
     getList: getNoticeList,
   }
 );
+const {
+  formDrawerRef,
+  formRef,
+  form,
+  rules,
+  drawerTitle,
+  handleSubmit,
+  handleCreate,
+  handleEdit,
+} = useInitForm({
+  form: {
+    title: "",
+    content: "",
+  },
+  rules: {
+    title: [{ required: true, message: "公告标题不能为空", trigger: "blur" }],
+    content: [{ required: true, message: "公告内容不能为空", trigger: "blur" }],
+  },
+  getData,
+  update: updateNotice,
+  create: createNotice,
+});
 
 // 删除
 const handleClick = (id) => {
@@ -102,65 +124,5 @@ const handleClick = (id) => {
     .finally(() => {
       loading.value = false;
     });
-};
-
-// 表单部分
-const formDrawerRef = ref(null);
-const formRef = ref(null);
-const form = reactive({
-  title: "",
-  content: "",
-});
-
-const rules = {
-  title: [{ required: true, message: "公告标题不能为空", trigger: "blur" }],
-  content: [{ required: true, message: "公告内容不能为空", trigger: "blur" }],
-};
-
-const editId = ref(0);
-const drawerTitle = computed(() => (editId.value ? "修改" : "新增"));
-
-const handleSubmit = () => {
-  formRef.value.validate((valid) => {
-    if (!valid) return;
-    formDrawerRef.value.showLoading();
-
-    const fun = editId.value
-      ? updateNotice(editId.value, form)
-      : createNotice(form);
-
-    fun
-      .then((res) => {
-        toast(drawerTitle.value + "成功");
-        // 修改刷新当前页,新增刷新第一页
-        getData(editId.value ? false : 1);
-        formDrawerRef.value.close();
-      })
-      .finally(() => {
-        formDrawerRef.value.hideLoading();
-      });
-  });
-};
-// 重置表单
-const resetFrom = (row = false) => {
-  if (formRef.value) formRef.value.clearValidate();
-  if (row) {
-    for (const key in row) {
-      form[key] = row[key];
-    }
-  }
-};
-
-// 新增
-const handleCreate = () => {
-  editId.value = 0;
-  resetFrom({ title: "", content: "" });
-  formDrawerRef.value.open();
-};
-// 修改
-const handleEdit = (row) => {
-  editId.value = row.id;
-  resetFrom(row);
-  formDrawerRef.value.open();
 };
 </script>

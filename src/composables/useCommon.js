@@ -2,7 +2,7 @@
 // 组合式 API 特性封装
 import { reactive, ref, computed } from "vue";
 import { toast } from "~/composables/utils";
-// - 列表 分页 搜索
+// - 列表 分页 搜索 删除 修改状态
 export function useInitTable(opt = {}) {
   let searchForm = null;
   let resetSearchForm = null;
@@ -49,6 +49,37 @@ export function useInitTable(opt = {}) {
   }
 
   getData();
+
+  /*
+  因为删除和修改都需要用到 getData 方法，
+  索性封装到一起,没必要单独封装
+  */
+  // 删除
+  const handleDelete = (id) => {
+    loading.value = true;
+    opt
+      .delete(id)
+      .then((res) => {
+        toast("删除成功");
+        getData(1);
+      })
+      .finally(() => {
+        loading.value = false;
+      });
+  };
+  // 修改状态
+  const handleStatusChange = (status, row) => {
+    row.statusLoading = true;
+    opt
+      .updateStatus(row.id, status)
+      .then((res) => {
+        toast("修改状态成功");
+        row.status = status;
+      })
+      .finally(() => {
+        row.statusLoading = false;
+      });
+  };
   return {
     searchForm,
     resetSearchForm,
@@ -58,6 +89,8 @@ export function useInitTable(opt = {}) {
     total,
     limit,
     getData,
+    handleDelete,
+    handleStatusChange,
   };
 }
 // - 新增 修改

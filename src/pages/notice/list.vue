@@ -28,7 +28,7 @@
             title="是否要删除该公告?"
             confirmButtonText="提交"
             cancelButtonText="取消"
-            @confirm="handleClick(scope.row.id)"
+            @confirm="handleDelete(scope.row.id)"
           >
             <template #reference>
               <el-button text type="primary" size="small">删除</el-button>
@@ -71,7 +71,6 @@
   </el-card>
 </template>
 <script setup>
-import { reactive, ref, computed } from "vue";
 import {
   getNoticeList,
   createNotice,
@@ -79,17 +78,22 @@ import {
   updateNotice,
 } from "~/api/notice";
 import FormDrawer from "~/components/FormDrawer.vue";
-
+/**
+ * 公告代码抽离封装
+ * 组合式 API 特性 封装
+ * useInitTable 列表 分页 搜索 删除 修改状态
+ * useInitForm  新增 修改
+ * **/
 import { useInitTable, useInitForm } from "~/composables/useCommon.js";
 
-const { tableData, loading, currentPage, total, limit, getData } = useInitTable(
-  {
+const { tableData, loading, currentPage, total, limit, getData, handleDelete } =
+  useInitTable({
     searchForm: {
       keyword: "",
     },
     getList: getNoticeList,
-  }
-);
+    delete: deleteNotice,
+  });
 const {
   formDrawerRef,
   formRef,
@@ -112,17 +116,4 @@ const {
   update: updateNotice,
   create: createNotice,
 });
-
-// 删除
-const handleClick = (id) => {
-  loading.value = true;
-  deleteNotice(id)
-    .then((res) => {
-      toast("删除成功");
-      getData(1);
-    })
-    .finally(() => {
-      loading.value = false;
-    });
-};
 </script>

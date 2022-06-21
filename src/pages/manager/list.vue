@@ -144,9 +144,8 @@
   </el-card>
 </template>
 <script setup>
-import { reactive, ref, computed } from "vue";
+import { ref } from "vue";
 import FormDrawer from "~/components/FormDrawer.vue";
-
 import ChooseImage from "~/components/ChooseImage.vue";
 import {
   getManagerList,
@@ -156,6 +155,12 @@ import {
   deleteManager,
 } from "~/api/manager";
 
+/**
+ * 公告代码抽离封装
+ * 组合式 API 特性 封装
+ * useInitTable 列表 分页 搜索 删除 修改状态
+ * useInitForm  新增 修改
+ * **/
 import { useInitTable, useInitForm } from "~/composables/useCommon.js";
 
 const roles = ref([]);
@@ -169,6 +174,8 @@ const {
   total,
   limit,
   getData,
+  handleDelete,
+  handleStatusChange,
 } = useInitTable({
   searchForm: {
     keyword: "",
@@ -182,6 +189,8 @@ const {
     total.value = res.totalCount;
     roles.value = res.roles;
   },
+  delete: deleteManager,
+  updateStatus: updateManagerStatus,
 });
 
 const {
@@ -206,30 +215,4 @@ const {
   update: updateManager,
   create: createManager,
 });
-
-// 删除
-const handleDelete = (id) => {
-  loading.value = true;
-  deleteManager(id)
-    .then((res) => {
-      toast("删除成功");
-      getData(1);
-    })
-    .finally(() => {
-      loading.value = false;
-    });
-};
-
-// 修改状态
-const handleStatusChange = (status, row) => {
-  row.statusLoading = true;
-  updateManagerStatus(row.id, status)
-    .then((res) => {
-      toast("修改状态成功");
-      row.status = status;
-    })
-    .finally(() => {
-      row.statusLoading = false;
-    });
-};
 </script>

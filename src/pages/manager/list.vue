@@ -156,7 +156,7 @@ import {
 } from "~/api/manager";
 
 /**
- * 公告代码抽离封装
+ * 公共代码抽离封装
  * 组合式 API 特性 封装
  * useInitTable 列表 分页 搜索 删除 修改状态
  * useInitForm  新增 修改
@@ -211,7 +211,6 @@ const {
     avatar: "",
   },
   getData,
-
   update: updateManager,
   create: createManager,
 });

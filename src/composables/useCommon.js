@@ -50,10 +50,10 @@ export function useInitTable(opt = {}) {
 
   getData();
 
-  /*
-  因为删除和修改都需要用到 getData 方法，
-  索性封装到一起,没必要单独封装
-  */
+  /**
+   * 因为删除和修改都需要用到 getData 方法，
+   *  索性封装到一起,没必要单独封装
+   **/
   // 删除
   const handleDelete = (id) => {
     loading.value = true;

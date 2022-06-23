@@ -141,23 +141,17 @@ import { useInitTable, useInitForm } from "~/composables/useCommon.js";
 
 const options = ref([]);
 const defaultExpandedKeys = ref([]);
-const {
-  loading,
-  tableData,
-  getData,
-
-  handleDelete,
-  handleStatusChange,
-} = useInitTable({
-  getList: getRuleList,
-  onGetListSuccess: (res) => {
-    options.value = res.rules;
-    tableData.value = res.list;
-    defaultExpandedKeys.value = res.list.map((o) => o.id);
-  },
-  delete: deleteRule,
-  updateStatus: updateRuleStatus,
-});
+const { loading, tableData, getData, handleDelete, handleStatusChange } =
+  useInitTable({
+    getList: getRuleList,
+    onGetListSuccess: (res) => {
+      options.value = res.rules;
+      tableData.value = res.list;
+      defaultExpandedKeys.value = res.list.map((o) => o.id);
+    },
+    delete: deleteRule,
+    updateStatus: updateRuleStatus,
+  });
 
 const {
   formDrawerRef,

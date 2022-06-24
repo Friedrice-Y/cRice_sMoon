@@ -47,7 +47,12 @@
       />
     </div>
   </el-card>
-  <FormDrawer ref="formDrawerRef" title="新增" @submit="handleSubmit">
+  <FormDrawer
+    destroyOnClose
+    ref="formDrawerRef"
+    title="新增"
+    @submit="handleSubmit"
+  >
     <el-form
       :model="form"
       ref="formRef"
@@ -70,7 +75,7 @@
         />
       </el-form-item>
       <el-form-item label="规格值" prop="default">
-        <el-input v-model="form.default" placeholder="规格值"></el-input>
+        <TagInput v-model="form.default" />
       </el-form-item>
     </el-form>
   </FormDrawer>
@@ -86,7 +91,8 @@ import {
 } from "~/api/skus.js";
 import FormDrawer from "~/components/FormDrawer.vue";
 import ListHeader from "~/components/ListHeader.vue";
-import { toast } from "~/composables/utils";
+import TagInput from "~/components/TagInput.vue";
+// import { toast } from "~/composables/utils";
 /**
  * 公告代码抽离封装
  * 组合式 API 特性 封装

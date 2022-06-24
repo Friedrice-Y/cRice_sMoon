@@ -1,8 +1,21 @@
 <template>
   <el-card shadow="never" class="boder-0">
     <!-- 新增|刷新 -->
-    <ListHeader @create="handleCreate" @refresh="getData" />
-    <el-table :data="tableData" stripe style="width: 100%" v-loading="loading">
+    <ListHeader
+      layout="create,delete,refresh"
+      @create="handleCreate"
+      @refresh="getData"
+      @delete="handleMultiDelete"
+    />
+    <el-table
+      ref="multipleTableRef"
+      @selection-change="handleSelectionChange"
+      :data="tableData"
+      stripe
+      style="width: 100%"
+      v-loading="loading"
+    >
+      <el-table-column type="selection" width="55" />
       <el-table-column prop="name" label="规格名称" width="180" />
       <el-table-column prop="default" label="规格值" width="380" />
       <el-table-column prop="order" label="排序" />
@@ -92,7 +105,7 @@ import {
 import FormDrawer from "~/components/FormDrawer.vue";
 import ListHeader from "~/components/ListHeader.vue";
 import TagInput from "~/components/TagInput.vue";
-// import { toast } from "~/composables/utils";
+import { toast } from "~/composables/utils";
 /**
  * 公告代码抽离封装
  * 组合式 API 特性 封装
@@ -142,4 +155,26 @@ const {
   update: updateSkus,
   create: createSkus,
 });
+// 多选选中的ID数组
+const multiSelectionIds = ref([]);
+const handleSelectionChange = (e) => {
+  multiSelectionIds.value = e.map((o) => o.id);
+};
+// 批量删除的方法
+const multipleTableRef = ref(null);
+const handleMultiDelete = () => {
+  loading.value = true;
+  deleteSkus(multiSelectionIds.value)
+    .then(() => {
+      toast("删除成功");
+      // 清空选中
+      if (multipleTableRef.value) {
+        multipleTableRef.value.clearSelection();
+      }
+      getData();
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+};
 </script>

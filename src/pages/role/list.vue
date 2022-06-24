@@ -86,12 +86,14 @@
   >
     <el-tree
       ref="elTreeRef"
+      :check-strictly="checkStrictly"
       node-key="id"
       :default-expanded-keys="defaultExpandedKeys"
       :data="ruleList"
       :props="{ label: 'name', children: 'child' }"
       show-checkbox
       :height="treeHeight"
+      @check="handleCheck"
     >
       <template #default="{ node, data }">
         <div class="flex items-center">
@@ -112,10 +114,12 @@ import {
   deleteRole,
   updateRole,
   updateRoleStatus,
+  setRoleRules,
 } from "~/api/role.js";
 import { getRuleList } from "~/api/rule";
 import FormDrawer from "~/components/FormDrawer.vue";
 import ListHeader from "~/components/ListHeader.vue";
+import { toast } from "~/composables/utils";
 /**
  * 公告代码抽离封装
  * 组合式 API 特性 封装
@@ -170,12 +174,14 @@ const treeHeight = ref(0);
 const roleId = ref(0);
 const defaultExpandedKeys = ref([]);
 const elTreeRef = ref(null);
+const checkStrictly = ref(false);
 // 当前用户拥有的权限id
 const ruleIds = ref([]);
 const openSetRule = (row) => {
   roleId.value = row.id;
   treeHeight.value = window.innerHeight - 170;
   setRuleformDrawerRef.value.open();
+  checkStrictly.value = true;
   getRuleList(1).then((res) => {
     defaultExpandedKeys.value = res.list.map((o) => o.id);
     ruleList.value = res.list;
@@ -184,8 +190,25 @@ const openSetRule = (row) => {
     ruleIds.value = row.rules.map((o) => o.id);
     setTimeout(() => {
       elTreeRef.value.setCheckedKeys(ruleIds.value);
+      checkStrictly.value = false;
     }, 150);
   });
 };
-const handleSetRuleSubmit = () => {};
+const handleSetRuleSubmit = () => {
+  setRuleformDrawerRef.value.showLoading();
+  setRoleRules(roleId.value, ruleIds.value)
+    .then((res) => {
+      toast("配置成功");
+      setRuleformDrawerRef.value.close();
+      getData();
+    })
+    .finally(() => {
+      setRuleformDrawerRef.value.hideLoading();
+    });
+};
+
+const handleCheck = (...e) => {
+  const { checkedKeys, halfCheckedKeys } = e[1];
+  ruleIds.value = [...checkedKeys, ...halfCheckedKeys];
+};
 </script>

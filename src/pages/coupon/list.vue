@@ -26,6 +26,7 @@
       <el-table-column label="操作" width="180" align="center">
         <template #default="scope">
           <el-button
+            v-if="scope.row.statusText == '未开始'"
             type="primary"
             size="small"
             text
@@ -33,13 +34,26 @@
             >修改</el-button
           >
           <el-popconfirm
-            title="是否要删除该公告?"
+            v-if="scope.row.statusText != '领取中'"
+            title="是否要删除该优惠卷?"
             confirmButtonText="提交"
             cancelButtonText="取消"
             @confirm="handleDelete(scope.row.id)"
           >
             <template #reference>
               <el-button text type="primary" size="small">删除</el-button>
+            </template>
+          </el-popconfirm>
+
+          <el-popconfirm
+            v-if="scope.row.statusText == '领取中'"
+            title="是否要删除该优惠卷失效?"
+            confirmButtonText="提交"
+            cancelButtonText="取消"
+            @confirm="handleStatusChange(0, scope.row)"
+          >
+            <template #reference>
+              <el-button type="danger" size="small">失效</el-button>
             </template>
           </el-popconfirm>
         </template>
@@ -128,6 +142,7 @@ import {
   createCoupon,
   deleteCoupon,
   updateCoupon,
+  updateCouponStatus,
 } from "~/api/coupon";
 import FormDrawer from "~/components/FormDrawer.vue";
 import ListHeader from "~/components/ListHeader.vue";
@@ -163,22 +178,31 @@ function formatStatus(row) {
   return s;
 }
 
-const { tableData, loading, currentPage, total, limit, getData, handleDelete } =
-  useInitTable({
-    searchForm: {
-      keyword: "",
-    },
-    getList: getCouponList,
-    onGetListSuccess: (res) => {
-      tableData.value = res.list.map((o) => {
-        // 转换优惠卷状态
-        o.statusText = formatStatus(o);
-        return o;
-      });
-      total.value = res.totalCount;
-    },
-    delete: deleteCoupon,
-  });
+const {
+  tableData,
+  loading,
+  currentPage,
+  total,
+  limit,
+  getData,
+  handleDelete,
+  handleStatusChange,
+} = useInitTable({
+  searchForm: {
+    keyword: "",
+  },
+  getList: getCouponList,
+  onGetListSuccess: (res) => {
+    tableData.value = res.list.map((o) => {
+      // 转换优惠卷状态
+      o.statusText = formatStatus(o);
+      return o;
+    });
+    total.value = res.totalCount;
+  },
+  delete: deleteCoupon,
+  updateStatus: updateCouponStatus,
+});
 const {
   formDrawerRef,
   formRef,

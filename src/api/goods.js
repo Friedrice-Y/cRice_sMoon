@@ -13,7 +13,7 @@ export function getGoodsList(
   return axios.get(`/admin/goods/${page}${r}`);
 }
 
-// 修改商品状态
+// 批量上架/下架
 export function updateGoodsStatus(ids, status) {
   return axios.post("/admin/goods/changestatus", { ids, status });
 }

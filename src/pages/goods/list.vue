@@ -37,14 +37,35 @@
         </template>
       </Search>
 
-      <ListHeader @create="handleCreate" @refresh="getData" />
+      <ListHeader
+        layout="create,delete,refresh"
+        @create="handleCreate"
+        @refresh="getData"
+        @delete="handleMultiDelete"
+      >
+        <el-button
+          size="small"
+          v-if="searchForm.tab == 'all' || searchForm.tab == 'off'"
+          @click="handleMultiStatusChange(1)"
+          >上架</el-button
+        >
+        <el-button
+          v-if="searchForm.tab == 'all' || searchForm.tab == 'saling'"
+          size="small"
+          @click="handleMultiStatusChange(0)"
+          >下架</el-button
+        >
+      </ListHeader>
 
       <el-table
         :data="tableData"
         stripe
         style="width: 100%"
         v-loading="loading"
+        ref="multipleTableRef"
+        @selection-change="handleSelectionChange"
       >
+        <el-table-column type="selection" width="55" />
         <el-table-column label="商品" width="300">
           <template #default="{ row }">
             <div class="flex">
@@ -268,7 +289,10 @@ const {
   limit,
   getData,
   handleDelete,
-  handleStatusChange,
+  multipleTableRef,
+  handleSelectionChange,
+  handleMultiDelete,
+  handleMultiStatusChange,
 } = useInitTable({
   searchForm: {
     title: "",

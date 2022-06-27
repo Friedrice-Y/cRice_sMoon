@@ -1,11 +1,32 @@
 <template>
-  <div v-if="modelValue" class="w-[100px] h-[100px]">
+  <div v-if="modelValue">
     <el-image
+      v-if="typeof modelValue == 'string'"
       :src="modelValue"
       fit="cover"
       class="w-[100px] h-[100px] rounded border mr-2"
     ></el-image>
+    <div v-else class="flex flex-wrap">
+      <div
+        class="relative mx-1 mb-2 w-[100px] h-[100px]"
+        v-for="(url, index) in modelValue"
+        :key="index"
+      >
+        <el-icon
+          class="absolute right-[5px] top-[5px] cursor-pointer bg-white rounded-full"
+          style="z-index: 10"
+          @click="removeImage(url)"
+          ><CircleClose
+        /></el-icon>
+        <el-image
+          :src="url"
+          fit="cover"
+          class="w-[100px] h-[100px] rounded border mr-2"
+        ></el-image>
+      </div>
+    </div>
   </div>
+
   <div class="choose-image-btn" @click="open">
     <el-icon :size="25" class="text-gray-500"><Plus /></el-icon>
   </div>
@@ -20,14 +41,20 @@
         >
       </el-header>
       <el-container>
-        <ImageAside ref="imageAsideRef" @change="handleAsideChange" />
-        <ImageMain openChoose ref="ImageMainRef" @choose="handleChoose" />
+        <ImageAside ref="ImageAsideRef" @change="handleAsideChange" />
+        <ImageMain
+          :limit="limit"
+          openChoose
+          ref="ImageMainRef"
+          @choose="handleChoose"
+        />
       </el-container>
     </el-container>
+
     <template #footer>
       <span>
         <el-button @click="close">取消</el-button>
-        <el-button type="primary" @click="submit">OK</el-button>
+        <el-button type="primary" @click="submit">确定</el-button>
       </span>
     </template>
   </el-dialog>
@@ -36,82 +63,65 @@
 import { ref } from "vue";
 import ImageAside from "~/components/ImageAside.vue";
 import ImageMain from "~/components/ImageMain.vue";
+import { toast } from "~/composables/utils";
 
 const dialogVisible = ref(false);
 
 const open = () => (dialogVisible.value = true);
-
 const close = () => (dialogVisible.value = false);
 
-const imageAsideRef = ref(null);
-
-const handleOpenCreate = () => imageAsideRef.value.handleCreate();
+const ImageAsideRef = ref(null);
+const handleOpenCreate = () => ImageAsideRef.value.handleCreate();
 
 const ImageMainRef = ref(null);
-
-const handleAsideChange = (imageClassId) =>
-  ImageMainRef.value.loadDate(imageClassId);
+const handleAsideChange = (image_class_id) =>
+  ImageMainRef.value.loadDate(image_class_id);
 
 const handleOpenUpload = () => ImageMainRef.value.openUploadFile();
 
-// 接收父组件传递过来的数据
 const props = defineProps({
   modelValue: [String, Array],
+  limit: {
+    type: Number,
+    default: 1,
+  },
 });
-// 更新父组件数据的方法
 const emit = defineEmits(["update:modelValue"]);
 
-// 接收选中的图片数据
 let urls = [];
-
 const handleChoose = (e) => {
   urls = e.map((o) => o.url);
 };
 
 const submit = () => {
-  if (urls.length) {
-    emit("update:modelValue", urls[0]);
+  let value = [];
+  if (props.limit == 1) {
+    value = urls[0];
+  } else {
+    value = [...props.modelValue, ...urls];
+    if (value.length > props.limit) {
+      return toast(
+        "最多还能选择" + (props.limit - props.modelValue.length) + "张"
+      );
+    }
+  }
+  if (value) {
+    emit("update:modelValue", value);
   }
   close();
 };
+const removeImage = (url) =>
+  emit(
+    "update:modelValue",
+    props.modelValue.filter((u) => u != url)
+  );
 </script>
 <style>
-.choose-image-btn {
-  @apply w-[100px] h-[100px] rounded border flex justify-center items-center cursor-pointer
-  cursor-pointer hover:(bg-gray-100);
-}
-
 .image-header {
   border-bottom: 1px solid #eeeeee;
   @apply flex items-center;
 }
-
-.image-aside {
-  border-right: 1px solid #eeeeee;
-  position: relative;
-}
-
-.image-main {
-  position: relative;
-}
-
-.image-aside .top,
-.image-main .top {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 50px;
-  overflow-y: auto;
-}
-
-.image-aside .bottom,
-.image-main .bottom {
-  position: absolute;
-  bottom: 0;
-  height: 50px;
-  right: 0;
-  left: 0;
-  @apply flex items-center justify-center;
+.choose-image-btn {
+  @apply w-[100px] h-[100px] rounded border flex justify-center items-center cursor-pointer hover:(bg-gray-100);
 }
 </style>

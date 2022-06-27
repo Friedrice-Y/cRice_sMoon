@@ -1,31 +1,18 @@
 <template>
   <el-card shadow="never" class="boder-0">
-    <el-form
-      :model="searchForm"
-      :rules="rules"
-      label-width="80px"
-      class="mb-3"
-      size="small"
-    >
-      <el-row :gutter="20">
-        <el-col :span="8" :offset="0">
-          <el-form-item label="关键词">
-            <el-input
-              v-model="searchForm.keyword"
-              placeholder="管理员昵称"
-              clearable
-            ></el-input> </el-form-item
-        ></el-col>
-        <el-col :span="8" :offset="8">
-          <div class="flex items-center justify-end">
-            <el-button type="primary" @click="getData">搜索</el-button>
-            <el-button @click="resetSearchForm">重置</el-button>
-          </div>
-        </el-col>
-      </el-row>
-    </el-form>
+    <!-- 搜索 -->
+    <Search :model="searchForm" @search="getData" @reset="resetSearchForm">
+      <SearchItem label="关键词">
+        <el-input
+          v-model="searchForm.keyword"
+          placeholder="管理员昵称"
+          clearable
+        ></el-input>
+      </SearchItem>
+    </Search>
     <!-- 新增|刷新 -->
     <ListHeader @create="handleCreate" @refresh="getData" />
+
     <el-table :data="tableData" stripe style="width: 100%" v-loading="loading">
       <el-table-column label="管理员" width="200">
         <template #default="{ row }">
@@ -98,6 +85,7 @@
         @current-change="getData"
       />
     </div>
+
     <FormDrawer ref="formDrawerRef" title="新增" @submit="handleSubmit">
       <el-form :model="form" ref="formRef" label-width="80px" :inline="false">
         <el-form-item label="用户名" prop="username">
@@ -137,6 +125,8 @@ import { ref } from "vue";
 import FormDrawer from "~/components/FormDrawer.vue";
 import ChooseImage from "~/components/ChooseImage.vue";
 import ListHeader from "~/components/ListHeader.vue";
+import SearchItem from "~/components/SearchItem.vue";
+import Search from "~/components/Search.vue";
 import {
   getManagerList,
   updateManagerStatus,

@@ -149,25 +149,57 @@ const asyncRoutes = [
     },
   },
 ];
-export const router = createRouter({
+const router = createRouter({
   history: createWebHashHistory(),
   routes,
 });
 
 export function addRoutes(menus) {
+  // 表示当次是否添加有新路由
   let hasNewRoutes = false;
-  const findAndAddRoutesByMenus = (arr) => {
-    arr.forEach((e) => {
-      let item = asyncRoutes.find((o) => o.path == e.frontpath);
-      if (item && !router.hasRoute(item.path)) {
-        router.addRoute("admin", item);
+
+  const findAndAddRoutesByMenus = (frontRoutes) => {
+    /*
+      <menuItem>{
+        frontpath
+        child: [<menuItem>{
+          frontpath
+          child: [<menuItem>{}]
+        }]
+      }
+    */
+
+    frontRoutes.forEach((frontRoutesItem) => {
+      // 双重循环查找本地路由列表中符合后台返回路由要求的对象
+      let asyncRoutesItemToAdd = asyncRoutes.find(
+        // menuItem.frontpath 后台为前端指定需要展示的路径    front => 前端
+        (asyncRoutesItem) => asyncRoutesItem.path == frontRoutesItem.frontpath
+      );
+
+      // 如果本地列表中存在并且本地初始化路由中还没有添加这个路径
+      // 正常添加
+      if (asyncRoutesItemToAdd && !router.hasRoute(asyncRoutesItemToAdd.path)) {
+        // 添加到 name 为 admin 的路由对象 children 中
+        // 如果只传递 item 路由对象,就添加到根路由数组中
+        // 筛选 Layout 组件内 router-view 可以显示的内容
+        router.addRoute("admin", asyncRoutesItemToAdd);
+
+        // 更新标记,表示有新路由添加
         hasNewRoutes = true;
       }
-      if (e.child && e.child.length > 0) {
-        findAndAddRoutesByMenus(e.child);
+
+      // 递归处理 child 内部的 frontRoutesItem
+      if (frontRoutesItem.child && frontRoutesItem.child.length > 0) {
+        findAndAddRoutesByMenus(frontRoutesItem.child);
       }
     });
   };
+
+  // 变量后台返回的基础数据
   findAndAddRoutesByMenus(menus);
+
+  // 向外传递表示是否已经添加新路由
   return hasNewRoutes;
 }
+
+export default router;

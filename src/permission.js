@@ -1,4 +1,4 @@
-import { router, addRoutes } from "~/router";
+import router, { addRoutes } from "~/router";
 import { getToken } from "~/composables/auth";
 import { toast, showFullLoading, hideFullLoading } from "~/composables/utils";
 import store from "./store";
@@ -30,12 +30,14 @@ router.beforeEach(async (to, from, next) => {
     // 动态添加路由
     hasNewRoutes = addRoutes(menus);
   }
+  hasNewRoutes ? next(to.fullPath) : next();
+});
 
+router.beforeEach((to) => {
+  console.log("设置标题");
   // 设置页面标题
   let title = (to.meta.title ? to.meta.title : "") + "-商城后台";
   document.title = title;
-
-  hasNewRoutes ? next(to.fullPath) : next();
 });
 
 router.afterEach((to, from) => hideFullLoading());

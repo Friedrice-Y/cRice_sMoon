@@ -5,11 +5,10 @@
       :unique-opened="true"
       :collapse-transition="false"
       :collapse="isCollapse"
-      default-active="2"
       class="border-0"
       @select="handleSelect"
     >
-      <template v-for="(item, index) in asideMenus" :key="index">
+      <!-- <template v-for="(item, index) in asideMenus" :key="index">
         <el-sub-menu
           v-if="item.child && item.child.length > 0"
           :index="item.name"
@@ -38,7 +37,8 @@
           </el-icon>
           <span>{{ item.name }}</span>
         </el-menu-item>
-      </template>
+      </template> -->
+      <f-sub-menu :child="asideMenus"></f-sub-menu>
     </el-menu>
   </div>
 </template>
@@ -50,12 +50,7 @@ const router = useRouter();
 const store = useStore();
 const route = useRoute();
 // 默认选中
-const defaultActive = ref(route.path);
-
-// 监听路由变化
-onBeforeRouteUpdate((to, from) => {
-  defaultActive.value = to.path;
-});
+const defaultActive = ref(route.fullPath);
 
 const isCollapse = computed(() => !(store.state.asideWidth == "250px"));
 
